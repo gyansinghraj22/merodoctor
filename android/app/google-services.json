@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "814139403815",
+    "project_id": "nero-doctor",
+    "storage_bucket": "nero-doctor.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814139403815:android:00b8d05a4519ab90bd6802",
+        "android_client_info": {
+          "package_name": "com.example.merodoctor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbS0xISSCy_ls5vwinWrrkP6TPa8fB7gM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
