@@ -1,5 +1,5 @@
 // lib/features/patient/domain/entities/patient_entity.dart
-import 'package:equatable/equatable.dart';
+import 'package:merodoctor/domain/entities/medical_record_entity.dart';
 import 'package:merodoctor/domain/entities/user_entity.dart';
 
 

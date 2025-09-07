@@ -89,27 +89,26 @@ class _DoctorProfileSetupPageState extends State<DoctorProfileSetupPage> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final doctor = DoctorModel(
-        doctorId:
-            UniqueKey()
-                .toString(), // You should replace this with Firestore ID or similar
-        name: _nameController.text.trim(),
-        email: _emailController.text.trim(),
-        phone: _phoneController.text.trim(),
-        speciality: _specialityController.text.trim(),
-        qualifications: _qualificationsController.text.trim(),
-        experience: int.tryParse(_experienceController.text.trim()) ?? 0,
-        licenseNumber: _licenseNumberController.text.trim(),
-        profileImage:
-            _profileImageController.text.trim().isEmpty
-                ? null
-                : _profileImageController.text.trim(),
-        availability: _isAvailable,
-        bio: _bioController.text.trim(),
-        status: '',
-        password: _passwordController.text.trim(),
-        notificationToken: '',
-      );
+      // final doctor = DoctorModel(
+      //   doctorId:
+      //       UniqueKey()
+      //           .toString(), // You should replace this with Firestore ID or similar
+      //   name: _nameController.text.trim(),
+      //   email: _emailController.text.trim(),
+      //   phone: _phoneController.text.trim(),
+      //   speciality: _specialityController.text.trim(),
+      //   qualifications: _qualificationsController.text.trim(),
+      //   experience: int.tryParse(_experienceController.text.trim()) ?? 0,
+      //   licenseNumber: _licenseNumberController.text.trim(),
+      //   profileImage:      //       _profileImageController.text.trim().isEmpty
+/*    //           ? null
+      //           : _profileImageController.text.trim(),
+      //   availability: _isAvailable,
+      //   bio: _bioController.text.trim(),
+      //   status: '',
+      //   password: _passwordController.text.trim(),
+      //   notificationToken: '',
+      // );
 
       context.read<DoctorBloc>().add(AddDoctorEvent(doctor));
 

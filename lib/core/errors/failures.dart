@@ -49,3 +49,6 @@ class BadRequestFailure extends Failure {
 class ServiceUnavailableFailure extends Failure {
   const ServiceUnavailableFailure(super.message);
 }
+
+
+// Auth failures

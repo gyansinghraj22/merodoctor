@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:merodoctor/core/errors/failures.dart';
 import 'package:merodoctor/data/data_source/doctor_remote_datasource.dart';
 import 'package:merodoctor/data/model/doctor_model.dart';
-import 'package:merodoctor/domain/repository/doctor/doctor_repository.dart';
+import 'package:merodoctor/domain/repository/doctor_repository.dart';
 import 'package:merodoctor/service_locator.dart';
 
 class DoctorRepositoryImpl implements DoctorRepository {
