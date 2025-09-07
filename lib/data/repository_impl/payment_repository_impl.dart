@@ -1,6 +1,10 @@
 // lib/features/payment/data/repositories/payment_repository_impl.dart
 
 import 'package:dartz/dartz.dart';
+import 'package:merodoctor/core/errors/failures.dart';
+import 'package:merodoctor/data/data_source/payment_remote_datasource.dart';
+import 'package:merodoctor/data/model/payment_model.dart';
+import 'package:merodoctor/domain/repository/payment_repository.dart';
 
 /// Implements the [PaymentRepository] contract.
 ///
@@ -12,7 +16,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
   PaymentRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, PaymentModel>> processPayment(PaymentModel payment) async {
+  Future<Either<Failure, PaymentModel>> processPayment(
+    PaymentModel payment,
+  ) async {
     try {
       final processedPayment = await remoteDataSource.processPayment(payment);
       return Right(processedPayment);
@@ -32,7 +38,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<Either<Failure, List<PaymentModel>>> getPaymentHistory(String userId) async {
+  Future<Either<Failure, List<PaymentModel>>> getPaymentHistory(
+    String userId,
+  ) async {
     try {
       final history = await remoteDataSource.getPaymentHistory(userId);
       return Right(history);

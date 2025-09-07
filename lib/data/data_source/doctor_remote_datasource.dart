@@ -1,83 +1,80 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dartz/dartz.dart';
+// lib/features/doctor/data/datasources/doctor_remote_data_source.dart
+
+
 import 'package:merodoctor/data/model/doctor_model.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 abstract class DoctorRemoteDataSource {
-  Future<Either<String, dynamic>> getDoctors();
-  Future<Either<String, dynamic>> getDoctorById(String id);
-  Future<Either<String, dynamic>> registerAsDoctor(DoctorModel doctor);
-  Future<Either<String, dynamic>> updateDoctor(DoctorModel doctor);
-  Future<Either<String, dynamic>> deleteAsDoctor(String id);
+  Future<DoctorModel> getDoctorById(String doctorId);
+  Future<List<DoctorModel>> getDoctorsBySpecialty(String specialty);
+  Future<List<DoctorModel>> getAllDoctors();
+  Future<List<DateTime>> getAvailableTimeSlots(String doctorId, DateTime date);
+  Future<void> createDoctor(DoctorModel doctor);
+  Future<void> updateDoctor(DoctorModel doctor);
+  Future<void> deleteDoctor(String doctorId);
 }
+// lib/features/doctor/data/datasources/doctor_remote_data_source_impl.dart
 
 class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
-  final FirebaseFirestore firestore;
-  final String collectionPath;
+  final FirebaseFirestore _firestore;
 
-  DoctorRemoteDataSourceImpl(this.firestore, {this.collectionPath = 'doctors'});
+  DoctorRemoteDataSourceImpl({required FirebaseFirestore firestore})
+      : _firestore = firestore;
 
   @override
-  Future<Either<String, dynamic>> getDoctors() async {
-    try {
-      final snapshot = await firestore.collection(collectionPath).get();
-      if (snapshot.docs.isEmpty) {
-        return Left('No Doctors found');
-      }
-      final doctors =
-          snapshot.docs.map((doc) => DoctorModel.fromJson(doc.data())).toList();
-      return Right(doctors);
-    } catch (e) {
-      return Left('Error fetching doctors: $e');
+  Future<DoctorModel> getDoctorById(String doctorId) async {
+    final doc = await _firestore.collection('doctors').doc(doctorId).get();
+    if (!doc.exists) {
+      throw Exception('Doctor not found');
     }
+    return DoctorModel.fromFirestore(doc);
   }
 
   @override
-  Future<Either<String, dynamic>> getDoctorById(String id) async {
-    try {
-      final doc = await firestore.collection(collectionPath).doc(id).get();
-      if (!doc.exists) {
-        return Left('Doctor not found');
-      }
-      final doctor = DoctorModel.fromJson(doc.data()!);
-      return Right(doctor);
-    } catch (e) {
-      return Left('Error fetching doctor: $e');
-    }
+  Future<List<DoctorModel>> getDoctorsBySpecialty(String specialty) async {
+    final querySnapshot = await _firestore
+        .collection('doctors')
+        .where('specialty', isEqualTo: specialty)
+        .get();
+    return querySnapshot.docs.map((doc) => DoctorModel.fromFirestore(doc)).toList();
   }
 
   @override
-  Future<Either<String, dynamic>> registerAsDoctor(DoctorModel doctor) async {
-    try {
-      await firestore
-          .collection(collectionPath)
-          .doc(doctor.doctorId)
-          .set(doctor.toJson());
-      return Right('Doctor created successfully');
-    } catch (e) {
-      return Left('Failed to create doctor: $e');
-    }
+  Future<List<DoctorModel>> getAllDoctors() async {
+    final querySnapshot = await _firestore.collection('doctors').get();
+    return querySnapshot.docs.map((doc) => DoctorModel.fromFirestore(doc)).toList();
   }
 
   @override
-  Future<Either<String, dynamic>> updateDoctor(DoctorModel doctor) async {
-    try {
-      await firestore
-          .collection(collectionPath)
-          .doc(doctor.doctorId)
-          .update(doctor.toJson());
-      return Right('Doctor updated successfully');
-    } catch (e) {
-      return Left('Failed to update doctor: $e');
+  Future<List<DateTime>> getAvailableTimeSlots(String doctorId, DateTime date) async {
+    // This is a simplified example; a real-world implementation would involve
+    // checking both the doctor's set working hours and existing appointments.
+    // This method would then compute and return the available slots.
+    final doc = await _firestore.collection('doctors').doc(doctorId).get();
+    if (!doc.exists) {
+      throw Exception('Doctor not found');
     }
+    // Example: dummy data for a professional response
+    return [
+      DateTime(date.year, date.month, date.day, 9, 0),
+      DateTime(date.year, date.month, date.day, 10, 0),
+      DateTime(date.year, date.month, date.day, 11, 0),
+    ];
   }
 
   @override
-  Future<Either<String, dynamic>> deleteAsDoctor(String id) async {
-    try {
-      await firestore.collection(collectionPath).doc(id).delete();
-      return Right('Doctor deleted successfully');
-    } catch (e) {
-      return Left('Failed to delete doctor: $e');
-    }
+  Future<void> createDoctor(DoctorModel doctor) async {
+    await _firestore.collection('doctors').doc(doctor.userId).set(doctor.toFirestore());
+  }
+
+  @override
+  Future<void> updateDoctor(DoctorModel doctor) async {
+    await _firestore.collection('doctors').doc(doctor.userId).update(doctor.toFirestore());
+  }
+
+  @override
+  Future<void> deleteDoctor(String doctorId) async {
+    await _firestore.collection('doctors').doc(doctorId).delete();
   }
 }

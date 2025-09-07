@@ -1,39 +1,49 @@
-import 'package:merodoctor/domain/entities/prescribtion_entity.dart'
-    show PrescriptionEntity;
+// lib/features/prescription/data/models/prescription_model.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:merodoctor/data/model/prescribtion_medication_model.dart';
+import 'package:merodoctor/domain/entities/prescribtion_entity.dart';
 
-/// Represents the data model for a Prescription, extending PrescriptionEntity.
-/// This class handles JSON serialization and deserialization.
+
 class PrescriptionModel extends PrescriptionEntity {
-  PrescriptionModel({
+  const PrescriptionModel({
     required super.prescriptionId,
     required super.appointmentId,
     required super.doctorId,
     required super.patientId,
     required super.dateIssued,
-    required super.notes,
+    super.notes,
+    super.medications,
   });
 
-  /// Factory constructor to create a PrescriptionModel instance from a JSON map.
-  factory PrescriptionModel.fromJson(Map<String, dynamic> json) =>
-      PrescriptionModel(
-        prescriptionId: json['prescriptionId'] as int,
-        appointmentId: json['appointmentId'] as int,
-        doctorId: json['doctorId'] as int,
-        patientId: json['patientId'] as int,
-        // Parse ISO 8601 string back to DateTime
-        dateIssued: DateTime.parse(json['dateIssued'] as String),
-        notes: json['notes'] as String,
-      );
+  /// Factory to create a model from Firestore document
+  factory PrescriptionModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
 
-  /// Converts this PrescriptionModel instance to a JSON-compatible map.
+    return PrescriptionModel(
+      prescriptionId: doc.id,
+      appointmentId: data['appointmentId'] as String,
+      doctorId: data['doctorId'] as String,
+      patientId: data['patientId'] as String,
+      dateIssued: (data['dateIssued'] as Timestamp).toDate(),
+      notes: data['notes'] as String?,
+      medications: (data['medications'] as List<dynamic>?)
+              ?.map((med) => PrescriptionMedicationModel.fromMap(
+                  med as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
 
-  Map<String, dynamic> toJson() => {
-    'prescriptionId': prescriptionId,
-    'appointmentId': appointmentId,
-    'doctorId': doctorId,
-    'patientId': patientId,
-    // Convert DateTime to ISO 8601 string for JSON serialization
-    'dateIssued': dateIssued.toIso8601String(),
-    'notes': notes,
-  };
+  /// Convert to Firestore map
+  Map<String, dynamic> toFirestore() {
+    return {
+      'appointmentId': appointmentId,
+      'doctorId': doctorId,
+      'patientId': patientId,
+      'dateIssued': Timestamp.fromDate(dateIssued),
+      'notes': notes,
+      'medications':
+          medications.map((med) => (med as PrescriptionMedicationModel).toMap()).toList(),
+    };
+  }
 }

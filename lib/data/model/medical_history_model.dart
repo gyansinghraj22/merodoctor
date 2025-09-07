@@ -1,5 +1,4 @@
 // lib/features/medical_history/data/models/medical_history_model.dart
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:merodoctor/domain/entities/medical_record_entity.dart';
 
 class MedicalHistoryModel extends MedicalHistoryEntity {

@@ -5,11 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 
 import 'package:merodoctor/core/errors/failures.dart';
+import 'package:merodoctor/data/data_source/auth_remote_data_sources.dart';
 import 'package:merodoctor/data/model/user_model.dart';
 import 'package:merodoctor/domain/repository/user_repository.dart';
-import 'package:merodoctor/features/auth/domain/repositories/user_repository.dart';
-import 'package:merodoctor/features/auth/data/models/user_model.dart';
-import 'package:merodoctor/features/auth/data/datasources/auth_remote_data_source.dart';
 
 /// Implements the [UserRepository] contract.
 ///

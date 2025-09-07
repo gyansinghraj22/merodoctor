@@ -1,172 +1,58 @@
+// lib/features/payment/data/datasources/payment_
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:merodoctor/data/model/payment_model.dart';
 
-abstract class PaymentRemoteDatasource {
-   Future<Either<String, dynamic>> getPayments();
-  Future<Either<String, List<PaymentModel>>> getPaymentsByUser(String userId);
 
-  Future<Either<String, dynamic>> getPaymentById(String id);
-  Future<Either<String, dynamic>> createPayment(PaymentModel payment);
-  Future<Either<String, dynamic>> updatePayment(PaymentModel payment);
-  Future<Either<String, dynamic>> deletePayment(String id);
+abstract class PaymentRemoteDataSource {
+  Future<PaymentModel> processPayment(PaymentModel payment);
+  Future<PaymentModel> getPaymentById(String paymentId);
+  Future<List<PaymentModel>> getPaymentHistory(String userId);
+  Future<String> checkPaymentStatus(String paymentId);
 }
+// lib/features/payment/data/datasources/payment_remote_data_source_impl.dart
 
+class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
+  final FirebaseFirestore _firestore;
 
-class PaymentRemoteDataSourceImpl implements PaymentRemoteDatasource {
-  final FirebaseFirestore firestore;
-  final String collectionPath;
-
-  PaymentRemoteDataSourceImpl(
-    this.firestore, {
-    this.collectionPath = 'payments',
-  });
+  PaymentRemoteDataSourceImpl({required FirebaseFirestore firestore})
+      : _firestore = firestore;
 
   @override
-  Future<Either<String, List<PaymentModel>>> getPaymentsByUser(
-    String userId,
-  ) async {
-    if (userId.isEmpty) return Left('Invalid user ID');
-
-    try {
-      final snapshot =
-          await firestore
-              .collection(collectionPath)
-              .where('userId', isEqualTo: userId)
-              .get();
-
-      if (snapshot.docs.isEmpty) return Left('No payments found for this user');
-
-      final payments =
-          snapshot.docs
-              .map(
-                (doc) =>
-                    PaymentModel.fromJson({...doc.data(), 'paymentId': doc.id}),
-              )
-              .toList();
-
-      return Right(payments);
-    } catch (e) {
-      return Left('Failed to fetch user payments: $e');
-    }
+  Future<PaymentModel> processPayment(PaymentModel payment) async {
+    // In a real-world scenario, this would involve a call to a secure
+    // payment gateway (like Stripe or PayPal) via a server-side function.
+    // Here, we simulate a successful transaction by storing it in Firestore.
+    final docRef = _firestore.collection('payments').doc();
+    final newPayment = payment;
+    await docRef.set(newPayment.toFirestore());
+    return newPayment;
   }
 
   @override
-  Future<Either<String, List<PaymentModel>>> getPayments() async {
-    try {
-      final snapshot =
-          await firestore
-              .collection(collectionPath)
-              .where(
-                'userId',
-                isEqualTo: FirebaseAuth.instance.currentUser!.uid,
-              )
-              .get();
-      if (snapshot.docs.isEmpty) return Left('No payments found');
-
-      final payments =
-          snapshot.docs
-              .map(
-                (doc) =>
-                    PaymentModel.fromJson({...doc.data(), 'paymentId': doc.id}),
-              )
-              .toList();
-
-      return Right(payments);
-    } catch (e) {
-      return Left('Failed to fetch payments: $e');
+  Future<PaymentModel> getPaymentById(String paymentId) async {
+    final doc = await _firestore.collection('payments').doc(paymentId).get();
+    if (!doc.exists) {
+      throw Exception('Payment not found');
     }
-  }
-
-  //   Future<Either<String, List<PaymentModel>>> getPayments({required String userId}) async {
-  //   if (userId.isEmpty) return Left('Invalid user ID');
-
-  //   try {
-  //     final snapshot = await firestore
-  //         .collection(collectionPath)
-  //         .where('userId', isEqualTo: userId) // Filter by current user
-  //         .get();
-
-  //     if (snapshot.docs.isEmpty) return Left('No payments found for this user');
-
-  //     final payments = snapshot.docs
-  //         .map((doc) => PaymentModel.fromJson({
-  //               ...doc.data(),
-  //               'paymentId': doc.id,
-  //             }))
-  //         .toList();
-
-  //     return Right(payments);
-  //   } catch (e) {
-  //     return Left('Failed to fetch payments: $e');
-  //   }
-  // }
-
-  @override
-  Future<Either<String, PaymentModel>> getPaymentById(String id) async {
-    if (id.isEmpty) return Left('Invalid payment ID');
-
-    try {
-      final doc = await firestore.collection(collectionPath).doc(id).get();
-      if (!doc.exists) return Left('Payment not found');
-
-      final payment = PaymentModel.fromJson({
-        ...doc.data()!,
-        'paymentId': doc.id,
-      });
-
-      return Right(payment);
-    } catch (e) {
-      return Left('Failed to fetch payment: $e');
-    }
+    return PaymentModel.fromFirestore(doc);
   }
 
   @override
-  Future<Either<String, String>> createPayment(PaymentModel payment) async {
-    try {
-      // Generate ID if empty
-      final docRef =
-          payment.paymentId.isNotEmpty
-              ? firestore.collection(collectionPath).doc(payment.paymentId)
-              : firestore.collection(collectionPath).doc();
-
-      await docRef.set(payment.toJson());
-
-      return Right('Payment created successfully');
-    } catch (e) {
-      return Left('Failed to create payment: $e');
-    }
+  Future<List<PaymentModel>> getPaymentHistory(String userId) async {
+    final querySnapshot = await _firestore
+        .collection('payments')
+        .where('userId', isEqualTo: userId)
+        .orderBy('timestamp', descending: true)
+        .get();
+    return querySnapshot.docs.map((doc) => PaymentModel.fromFirestore(doc)).toList();
   }
 
   @override
-  Future<Either<String, Map<String, dynamic>>> updatePayment(
-    PaymentModel payment,
-  ) async {
-    if (payment.paymentId.isEmpty) return Left('Invalid payment ID');
-
-    try {
-      final docRef = firestore
-          .collection(collectionPath)
-          .doc(payment.paymentId);
-      await docRef.update(payment.toJson());
-
-      final updatedDoc = await docRef.get();
-      return Right(updatedDoc.data()!);
-    } catch (e) {
-      return Left('Failed to update payment: $e');
+  Future<String> checkPaymentStatus(String paymentId) async {
+    final doc = await _firestore.collection('payments').doc(paymentId).get();
+    if (!doc.exists) {
+      throw Exception('Payment not found');
     }
-  }
-
-  @override
-  Future<Either<String, String>> deletePayment(String id) async {
-    if (id.isEmpty) return Left('Invalid payment ID');
-
-    try {
-      await firestore.collection(collectionPath).doc(id).delete();
-      return Right('Payment deleted successfully');
-    } catch (e) {
-      return Left('Failed to delete payment: $e');
-    }
+    return doc.data()!['status'] as String;
   }
 }

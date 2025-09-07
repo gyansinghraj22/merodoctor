@@ -1,17 +1,21 @@
-class PrescriptionEntity {
-  final int prescriptionId;
-  final int appointmentId;
-  final int doctorId;
-  final int patientId;
-  final DateTime dateIssued;
-  final String notes;
+import 'package:merodoctor/domain/entities/prescribtion_medication_entity.dart';
 
-  PrescriptionEntity({
+class PrescriptionEntity {
+  final String prescriptionId;
+  final String appointmentId;
+  final String doctorId;
+  final String patientId;
+  final DateTime dateIssued;
+  final String? notes;
+  final List<PrescriptionMedicationEntity> medications;
+
+  const PrescriptionEntity({
     required this.prescriptionId,
     required this.appointmentId,
     required this.doctorId,
     required this.patientId,
     required this.dateIssued,
-    required this.notes,
+    this.notes,
+    this.medications = const [],
   });
 }

@@ -9,7 +9,7 @@ import 'package:merodoctor/data/model/create_user_model.dart';
 // For demonstration, I'll provide a simple DoctorModel at the end of this file.
 import 'package:merodoctor/data/model/doctor_model.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:merodoctor/domain/usecases/auth/sign_up.dart';
+import 'package:merodoctor/domain/usecases/user/sign_up.dart';
 import 'package:merodoctor/presentation/bloc/doctor_profile_setup/doctor_profile_block.dart';
 import 'package:merodoctor/presentation/bloc/doctor_profile_setup/doctor_profile_event.dart';
 import 'package:merodoctor/presentation/pages/home_page.dart';

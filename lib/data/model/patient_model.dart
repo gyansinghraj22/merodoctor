@@ -1,6 +1,6 @@
 // lib/features/patient/data/models/patient_model.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:merodoctor/data/model/medical_record_model.dart';
+import 'package:merodoctor/data/model/medical_history_model.dart';
 import 'package:merodoctor/domain/entities/patient_entity.dart';
 
 

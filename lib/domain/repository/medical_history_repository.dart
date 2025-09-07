@@ -2,7 +2,7 @@
 
 import 'package:dartz/dartz.dart';
 import 'package:merodoctor/core/errors/failures.dart';
-import 'package:merodoctor/data/model/medical_record_model.dart';
+import 'package:merodoctor/data/model/medical_history_model.dart';
 
 abstract class MedicalHistoryRepository {
   /// Retrieves a patient's complete medical history.

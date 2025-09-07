@@ -5,7 +5,7 @@ import 'package:merodoctor/service_locator.dart';
 import 'package:merodoctor/common/widgets/appbar/app_bar.dart';
 import 'package:merodoctor/common/widgets/button/basic_app_button.dart';
 import 'package:merodoctor/data/model/login_user_model.dart';
-import 'package:merodoctor/domain/usecases/auth/login.dart';
+import 'package:merodoctor/domain/usecases/user/login.dart';
 import 'package:merodoctor/presentation/pages/authentication/signup_page.dart';
 import 'package:merodoctor/presentation/pages/home_page.dart';
 
